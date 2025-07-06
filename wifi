@@ -1,0 +1,15 @@
+import subprocess
+
+wifi_profiles = subprocess.check_output(['netsh', 'wlan', 'show', 'profiles']).decode('utf-8', errors="ignore").split('\n')
+wifi_names = [line.split(":")[1].strip() for line in wifi_profiles if "All User Profile" in line]
+
+for wifi in wifi_names:
+    profile_info = subprocess.check_output(['netsh', 'wlan', 'show', 'profiles', wifi, 'key=clear']).decode('utf-8', errors="ignore").split('\n')
+    password_lines = [line for line in profile_info if "Key Content" in line]
+
+    try:
+        password = password_lines[0].split(":")[1].strip()
+    except IndexError:
+        password = ""
+
+    print(f"{wifi:<30} | {password}")
